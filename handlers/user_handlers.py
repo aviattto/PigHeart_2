@@ -15,22 +15,13 @@ from database.db_users import sql_start, sql_read, create_profile
 router: Router = Router()
 
 
-# Этот хэндлер будет срабатывать на команду "/start" -
-# добавлять пользователя в базу данных, если его там еще не было
-# и отправлять ему приветственное сообщение
 @router.message(CommandStart())
 async def process_start_command(message: Message):
+    await message.answer(LEXICON['/help'])
     if message.from_user.id not in users_db:
         users_db[message.from_user.id] = deepcopy(user_dict_template)
-    users_db[message.from_user.id]['page'] = 1
-    text = book[users_db[message.from_user.id]['page']]
     await sql_start()
     await create_profile(message.from_user.id)
-    await message.answer(
-        text=text,
-        reply_markup=create_pagination_keyboard(
-            f'{users_db[message.from_user.id]["page"]}/{len(book)}',
-            'forward'))
 
 
 # Этот хэндлер будет срабатывать на команду "/help"
